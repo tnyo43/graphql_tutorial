@@ -43,12 +43,14 @@ const tags = [
 
 const resolvers = {
   Query: {
-    totalPhotos: () => photos.length,
-    allPhotos: (parent, args) => {
-      console.log(photos);
-      after = args.after;
-      return photos;
-    }
+    totalPhotos: (_parent, _args, { db }) =>
+      db.collection('photos').estimatedDocumentCount(),
+    allPhotos: (_parent, _args, { db }) =>
+      db.collection('photos').find().toArray(),
+    totalUsers: (_parent, _args, { db }) =>
+      db.collection('users').estimatedDocumentCount(),
+    allUsers: (_parent, _args, { db }) =>
+      db.collection('users').find().toArray()
   },
   Mutation: {
     postPhoto(_, args) {
