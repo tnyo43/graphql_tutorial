@@ -1,5 +1,5 @@
 const { GraphQLScalarType } = require('graphql');
-const { authorizeWithGithub } = require('./libs.js');
+const { authorizeWithGithub, randomUsers } = require('./libs.js');
 
 const users = [
   { githubLogin: 'mHattrup', name: 'Mike Hattrup' },
@@ -83,6 +83,24 @@ const resolvers = {
         .replaceOne({ githubLogin: login }, latestUserInfo, { upsert: true });
 
       return { user, token: access_token };
+    },
+    addFakeUsers: async (_parent, args, { db }) => {
+      const users = await randomUsers(args.count);
+      await db.collection('users').insertMany(users);
+
+      return users;
+    },
+    fakeUserAuth: async (_parent, { githubLogin }, { db }) => {
+      const user = await db.collection('users').findOne({ githubLogin });
+
+      if (!user) {
+        throw new Error(`Cannot find user with githubLogin ${githubLogin}`);
+      }
+
+      return {
+        token: user.githubToken,
+        user
+      };
     },
     postPhoto: async (_parent, args, { db, currentUser }) => {
       if (!currentUser) {

@@ -35,4 +35,19 @@ const authorizeWithGithub = async (credentials) => {
   return { ...githubUser, access_token };
 };
 
-module.exports = { authorizeWithGithub };
+const randomUsers = async (count) => {
+  const ramdomUserApi = `https://randomuser.me/api/?results=${count}`;
+  const fetcher = await fetch(ramdomUserApi);
+  const { results } = await fetcher.json();
+  console.log(results);
+  const users = results.map((r) => ({
+    githubLogin: r.login.username,
+    name: `${r.name.first} ${r.name.last}`,
+    avatar: r.picture.thumbnail,
+    githubToken: r.login.sha1
+  }));
+
+  return users;
+};
+
+module.exports = { authorizeWithGithub, randomUsers };
