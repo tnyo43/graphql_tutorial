@@ -36,7 +36,6 @@ input PostPhotoInput {
   name: String!
   category: PhotoCategory = PORTRAIT
   description: String
-  postedBy: ID!
 }
 
 type Query {

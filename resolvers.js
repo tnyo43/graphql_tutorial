@@ -84,30 +84,28 @@ const resolvers = {
 
       return { user, token: access_token };
     },
-    postPhoto(_, _args) {
-      const postedUserId = args.input.postedBy;
-
-      if (
-        users.find((user) => user.githubLogin === postedUserId) === undefined
-      ) {
-        throw 'unknown user';
+    postPhoto: async (_parent, args, { db, currentUser }) => {
+      if (!currentUser) {
+        throw new Error('only an authorized user can post a photo');
       }
 
       const newPhoto = {
-        id: ++photoId,
-        githubUser: postedUserId,
         ...args.input,
+        userId: currentUser.githubLogin,
         created: new Date()
       };
 
-      photos.push(newPhoto);
+      const { insertedIds } = await db.collection('photos').insert(newPhoto);
+      newPhoto.id = insertedIds[0];
+
       return newPhoto;
     }
   },
   Photo: {
-    url: (photo) => `http://yoursite.com/img/${photo.id}.jpg`,
-    postedBy: (photo) =>
-      users.find((user) => user.githubLogin === photo.githubUser),
+    id: (photo) => photo.id || photo._id,
+    url: (photo) => `http://yoursite.com/img/${photo.id || photo._id}.jpg`,
+    postedBy: async (photo, _args, { db }) =>
+      db.collection('users').findOne({ githubLogin: photo.userId }),
     taggedUsers: (photo) =>
       tags
         .filter((tag) => tag.photoId === photo.id)
