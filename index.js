@@ -18,9 +18,17 @@ const main = async () => {
     useUnifiedTopology: true,
     serverApi: ServerApiVersion.v1
   });
-  const context = { db: dbClient.db() };
+  db = dbClient.db();
 
-  const server = new ApolloServer({ typeDefs, resolvers, context });
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: async ({ req }) => {
+      const githubToken = req.headers.authorization;
+      const currentUser = await db.collection('users').findOne({ githubToken });
+      return { db, currentUser };
+    }
+  });
 
   await server.start();
 

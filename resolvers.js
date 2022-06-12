@@ -44,6 +44,7 @@ const tags = [
 
 const resolvers = {
   Query: {
+    me: (_parent, _args, { currentUser }) => currentUser,
     totalPhotos: (_parent, _args, { db }) =>
       db.collection('photos').estimatedDocumentCount(),
     allPhotos: (_parent, _args, { db }) =>
