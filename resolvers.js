@@ -1,4 +1,5 @@
 const { GraphQLScalarType } = require('graphql');
+const { authorizeWithGithub } = require('./libs.js');
 
 const users = [
   { githubLogin: 'mHattrup', name: 'Mike Hattrup' },
@@ -53,7 +54,36 @@ const resolvers = {
       db.collection('users').find().toArray()
   },
   Mutation: {
-    postPhoto(_, args) {
+    githubAuth: async (_parent, { code }, { db }) => {
+      const { message, access_token, avatar_url, login, name } =
+        await authorizeWithGithub({
+          client_id: process.env.GITHUB_CLIENT_ID,
+          client_secret: process.env.GITHUB_CLIENT_SECRET,
+          code
+        });
+
+      if (message) {
+        throw new Error(message);
+      }
+
+      const latestUserInfo = {
+        name,
+        githubLogin: login,
+        githubToken: access_token,
+        avatar: avatar_url
+      };
+
+      console.log(latestUserInfo);
+
+      const {
+        ops: [user]
+      } = await db
+        .collection('users')
+        .replaceOne({ githubLogin: login }, latestUserInfo, { upsert: true });
+
+      return { user, token: access_token };
+    },
+    postPhoto(_, _args) {
       const postedUserId = args.input.postedBy;
 
       if (

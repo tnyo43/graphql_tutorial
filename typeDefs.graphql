@@ -1,5 +1,10 @@
 scalar DateTime
 
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
 type User {
   githubLogin: ID!
   name: String!
@@ -42,5 +47,6 @@ type Query {
 }
 
 type Mutation {
+  githubAuth(code: String!): AuthPayload!
   postPhoto(input: PostPhotoInput!): Photo!
 }
