@@ -1,4 +1,5 @@
 import { photoQueries } from '../db/photo';
+import { tagQueries } from '../db/tags';
 import { userQueries } from '../db/user';
 import { authorizeWithGithub, randomUsers } from '../libs';
 import { dateTimeResolver } from './dateTime';
@@ -76,7 +77,7 @@ export const resolvers = {
           photoId: newPhoto.id,
           userId
         }));
-        await db.collection('tags').insert(tags);
+        await tagQueries.addTags(db, { tagInfos: tags });
       }
 
       return newPhoto;
@@ -88,39 +89,13 @@ export const resolvers = {
     postedBy: (photo, _args, { db }) =>
       userQueries.userOfGithubLogin(db, { githubLogin: photo.userId }),
     taggedUsers: (photo, _args, { db }) =>
-      db
-        .collection('users')
-        .aggregate([
-          {
-            $lookup: {
-              localField: 'githubLogin',
-              from: 'tags',
-              foreignField: 'userId',
-              as: 'tags_users'
-            }
-          },
-          { $match: { 'tags_users.photoId': photo._id } }
-        ])
-        .toArray()
+      tagQueries.taggedUsersOfPhoto(db, { photoInfo: photo })
   },
   User: {
     postedPhotos: (user, _args, { db }) =>
       photoQueries.photosByUser(db, { userInfo: user }),
     inPhotos: (user, _args, { db }) =>
-      db
-        .collection('photos')
-        .aggregate([
-          {
-            $lookup: {
-              localField: '_id',
-              from: 'tags',
-              foreignField: 'photoId',
-              as: 'tags_photos'
-            }
-          },
-          { $match: { 'tags_photos.userId': user.githubLogin } }
-        ])
-        .toArray()
+      tagQueries.photosOfTaggedUser(db, { userInfo: user })
   },
   DateTime: dateTimeResolver
 };

@@ -7,7 +7,7 @@ type UserInfo = {
   avatar: string;
 };
 
-type UserRecord = WithId<UserInfo>;
+export type UserRecord = WithId<UserInfo>;
 
 export const userQueries = {
   // CREATE

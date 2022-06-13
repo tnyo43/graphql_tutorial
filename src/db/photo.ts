@@ -10,7 +10,7 @@ type PhotoInfo = {
   category: PhotoCategory;
 };
 
-type PhotoRecord = WithId<PhotoInfo>;
+export type PhotoRecord = WithId<PhotoInfo>;
 
 export const photoQueries = {
   // CREATE
