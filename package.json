@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "start": "nodemon --exec ts-node -r tsconfig-paths/register index.ts -e js,ts,json,graphql",
+    "start": "nodemon --exec ts-node -r tsconfig-paths/register src/index.ts -e js,ts,json,graphql",
     "prepare:graphql": "graphql-codegen --config codegen.yml"
   },
   "author": "",
