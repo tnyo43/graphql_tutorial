@@ -1,3 +1,4 @@
+import { photoQueries } from '../db/photo';
 import { userQueries } from '../db/user';
 import { authorizeWithGithub, randomUsers } from '../libs';
 import { dateTimeResolver } from './dateTime';
@@ -5,10 +6,8 @@ import { dateTimeResolver } from './dateTime';
 export const resolvers = {
   Query: {
     me: (_parent, _args, { currentUser }) => currentUser,
-    totalPhotos: (_parent, _args, { db }) =>
-      db.collection('photos').estimatedDocumentCount(),
-    allPhotos: (_parent, _args, { db }) =>
-      db.collection('photos').find().toArray(),
+    totalPhotos: (_parent, _args, { db }) => photoQueries.totalPhotos(db),
+    allPhotos: (_parent, _args, { db }) => photoQueries.allPhotos(db),
     totalUsers: (_parent, _args, { db }) => userQueries.totalUsers(db),
     allUsers: (_parent, _args, { db }) => userQueries.allUsers(db)
   },
@@ -67,8 +66,10 @@ export const resolvers = {
         created: new Date()
       };
 
-      const { insertedIds } = await db.collection('photos').insert(newPhoto);
-      newPhoto.id = insertedIds[0];
+      const { insertedId } = await photoQueries.addPhoto(db, {
+        photoInfo: newPhoto
+      });
+      newPhoto.id = insertedId;
 
       if (args.input.taggedUsers) {
         const tags = args.input.taggedUsers.map((userId) => ({
@@ -104,9 +105,7 @@ export const resolvers = {
   },
   User: {
     postedPhotos: (user, _args, { db }) =>
-      db
-        .collection('photos')
-        .find((photo) => photo.userId === user.githubLogin),
+      photoQueries.photosByUser(db, { userInfo: user }),
     inPhotos: (user, _args, { db }) =>
       db
         .collection('photos')
