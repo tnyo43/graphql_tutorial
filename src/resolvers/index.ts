@@ -1,5 +1,5 @@
 import { GraphQLScalarType } from 'graphql';
-import { authorizeWithGithub, randomUsers } from './libs';
+import { authorizeWithGithub, randomUsers } from '../libs';
 
 export const resolvers = {
   Query: {
