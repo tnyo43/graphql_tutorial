@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "start": "nodemon --exec ts-node -r tsconfig-paths/register index.ts -e js,ts,json,graphql"
+    "start": "nodemon --exec ts-node -r tsconfig-paths/register index.ts -e js,ts,json,graphql",
+    "prepare:graphql": "graphql-codegen --config codegen.yml"
   },
   "author": "",
   "license": "ISC",
@@ -19,6 +20,9 @@
     "nodemon": "^2.0.16"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^2.6.2",
+    "@graphql-codegen/typescript": "^2.5.1",
+    "@graphql-codegen/typescript-resolvers": "^2.6.6",
     "@types/express": "^4.17.13",
     "@types/node": "^17.0.42",
     "@types/node-fetch": "^2.6.1",
