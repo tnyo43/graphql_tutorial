@@ -1,46 +1,6 @@
 const { GraphQLScalarType } = require('graphql');
+const { ObjectId } = require('mongodb');
 const { authorizeWithGithub, randomUsers } = require('./libs.js');
-
-const users = [
-  { githubLogin: 'mHattrup', name: 'Mike Hattrup' },
-  { githubLogin: 'gPlake', name: 'Glen Plake' },
-  { githubLogin: 'sSchmidt', name: 'Scot Schmidt' }
-];
-
-let photoId = 3;
-const photos = [
-  {
-    id: '1',
-    name: 'Dropping The Heart Chute',
-    description: 'happy',
-    category: 'ACTION',
-    githubUser: 'mHattrup',
-    created: '2019-12-31T15:00:00.000Z'
-  },
-  {
-    id: '2',
-    name: 'Enjoying the sunshine',
-    description: 'happy',
-    category: 'SELFIE',
-    githubUser: 'sSchmidt',
-    created: '2022-12-31T15:00:00.000Z'
-  },
-  {
-    id: '3',
-    name: 'Gunbarrel 25',
-    description: 'happy',
-    category: 'LANDSCAPE',
-    githubUser: 'gPlake',
-    created: '2030-12-31T15:00:00.000Z'
-  }
-];
-
-const tags = [
-  { photoId: '1', userId: 'gPlake' },
-  { photoId: '2', userId: 'sSchmidt' },
-  { photoId: '2', userId: 'mHattrup' },
-  { photoId: '2', userId: 'gPlake' }
-];
 
 const resolvers = {
   Query: {
@@ -73,8 +33,6 @@ const resolvers = {
         githubToken: access_token,
         avatar: avatar_url
       };
-
-      console.log(latestUserInfo);
 
       const {
         ops: [user]
@@ -116,6 +74,14 @@ const resolvers = {
       const { insertedIds } = await db.collection('photos').insert(newPhoto);
       newPhoto.id = insertedIds[0];
 
+      if (args.input.taggedUsers) {
+        const tags = args.input.taggedUsers.map((userId) => ({
+          photoId: newPhoto.id,
+          userId
+        }));
+        await db.collection('tags').insert(tags);
+      }
+
       return newPhoto;
     }
   },
@@ -124,20 +90,32 @@ const resolvers = {
     url: (photo) => `http://yoursite.com/img/${photo.id || photo._id}.jpg`,
     postedBy: async (photo, _args, { db }) =>
       db.collection('users').findOne({ githubLogin: photo.userId }),
-    taggedUsers: (photo) =>
-      tags
-        .filter((tag) => tag.photoId === photo.id)
-        .map((tag) => tag.userId)
-        .map((userId) => users.find((user) => user.githubLogin === userId))
+    taggedUsers: async (photo, _args, { db }) => {
+      const tags = await db
+        .collection('tags')
+        .find({ photoId: photo.id || photo._id })
+        .toArray();
+      return await db
+        .collection('users')
+        .find({ githubLogin: { $in: tags.map((t) => t.userId) } })
+        .toArray();
+    }
   },
   User: {
-    postedPhotos: (user) =>
-      photos.filter((photo) => photo.githubUser === user.githubLogin),
-    inPhotos: (user) =>
-      tags
-        .filter((tag) => tag.userId === user.githubLogin)
-        .map((tag) => tag.photoId)
-        .map((photoId) => photos.find((photo) => photo.id === photoId))
+    postedPhotos: (user, _args, { db }) =>
+      db
+        .collection('photos')
+        .find((photo) => photo.userId === user.githubLogin),
+    inPhotos: async (user, _args, { db }) => {
+      const tags = await db
+        .collection('tags')
+        .find({ userId: user.githubLogin })
+        .toArray();
+      return await db
+        .collection('photos')
+        .find({ _id: { $in: tags.map((t) => ObjectId(t.photoId)) } })
+        .toArray();
+    }
   },
   DateTime: new GraphQLScalarType({
     name: `DateTime`,
