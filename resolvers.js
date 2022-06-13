@@ -1,5 +1,4 @@
 const { GraphQLScalarType } = require('graphql');
-const { ObjectId } = require('mongodb');
 const { authorizeWithGithub, randomUsers } = require('./libs.js');
 
 const resolvers = {
@@ -88,34 +87,44 @@ const resolvers = {
   Photo: {
     id: (photo) => photo.id || photo._id,
     url: (photo) => `http://yoursite.com/img/${photo.id || photo._id}.jpg`,
-    postedBy: async (photo, _args, { db }) =>
+    postedBy: (photo, _args, { db }) =>
       db.collection('users').findOne({ githubLogin: photo.userId }),
-    taggedUsers: async (photo, _args, { db }) => {
-      const tags = await db
-        .collection('tags')
-        .find({ photoId: photo.id || photo._id })
-        .toArray();
-      return await db
+    taggedUsers: (photo, _args, { db }) =>
+      db
         .collection('users')
-        .find({ githubLogin: { $in: tags.map((t) => t.userId) } })
-        .toArray();
-    }
+        .aggregate([
+          {
+            $lookup: {
+              localField: 'githubLogin',
+              from: 'tags',
+              foreignField: 'userId',
+              as: 'tags_users'
+            }
+          },
+          { $match: { 'tags_users.photoId': photo._id } }
+        ])
+        .toArray()
   },
   User: {
     postedPhotos: (user, _args, { db }) =>
       db
         .collection('photos')
         .find((photo) => photo.userId === user.githubLogin),
-    inPhotos: async (user, _args, { db }) => {
-      const tags = await db
-        .collection('tags')
-        .find({ userId: user.githubLogin })
-        .toArray();
-      return await db
+    inPhotos: (user, _args, { db }) =>
+      db
         .collection('photos')
-        .find({ _id: { $in: tags.map((t) => ObjectId(t.photoId)) } })
-        .toArray();
-    }
+        .aggregate([
+          {
+            $lookup: {
+              localField: '_id',
+              from: 'tags',
+              foreignField: 'photoId',
+              as: 'tags_photos'
+            }
+          },
+          { $match: { 'tags_photos.userId': user.githubLogin } }
+        ])
+        .toArray()
   },
   DateTime: new GraphQLScalarType({
     name: `DateTime`,
