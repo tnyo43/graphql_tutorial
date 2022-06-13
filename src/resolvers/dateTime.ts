@@ -1,13 +1,14 @@
 import { GraphQLScalarType, Kind } from 'graphql';
 
-const throwError = (errorMessage?: string): any => {
-  throw errorMessage;
-};
+const isInvalidDate = (date: Date) => Number.isNaN(date.getTime());
 
-const unknownToDate = (value: unknown) =>
-  typeof value === 'string'
-    ? new Date(value)
-    : throwError('value is not string error');
+const unknownToDate = (value: unknown) => {
+  const date = new Date(value as any);
+  if (isInvalidDate(date)) {
+    throw 'Invalid Date format';
+  }
+  return date;
+};
 
 const unknownToDateISOString = (value: unknown) =>
   unknownToDate(value).toISOString();
@@ -17,8 +18,5 @@ export const dateTimeResolver = new GraphQLScalarType<Date, string>({
   description: 'A valid date time value',
   serialize: unknownToDateISOString,
   parseValue: unknownToDate,
-  parseLiteral: (ast) =>
-    ast.kind === Kind.STRING
-      ? new Date(ast.value)
-      : throwError('value is not string error')
+  parseLiteral: (ast) => unknownToDate((ast as any).value)
 });
