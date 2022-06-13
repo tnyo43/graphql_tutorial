@@ -1,3 +1,4 @@
+import { userQueries } from '../db/user';
 import { authorizeWithGithub, randomUsers } from '../libs';
 import { dateTimeResolver } from './dateTime';
 
@@ -8,47 +9,43 @@ export const resolvers = {
       db.collection('photos').estimatedDocumentCount(),
     allPhotos: (_parent, _args, { db }) =>
       db.collection('photos').find().toArray(),
-    totalUsers: (_parent, _args, { db }) =>
-      db.collection('users').estimatedDocumentCount(),
-    allUsers: (_parent, _args, { db }) =>
-      db.collection('users').find().toArray()
+    totalUsers: (_parent, _args, { db }) => userQueries.totalUsers(db),
+    allUsers: (_parent, _args, { db }) => userQueries.allUsers(db)
   },
   Mutation: {
     githubAuth: async (_parent, { code }, { db }) => {
-      const { message, access_token, avatar_url, login, name } =
-        await authorizeWithGithub({
-          client_id: process.env.GITHUB_CLIENT_ID,
-          client_secret: process.env.GITHUB_CLIENT_SECRET,
-          code
-        });
+      const authorizeResult = await authorizeWithGithub({
+        client_id: process.env.GITHUB_CLIENT_ID,
+        client_secret: process.env.GITHUB_CLIENT_SECRET,
+        code
+      });
 
-      if (message) {
-        throw new Error(message);
+      if (authorizeResult.status === 'error') {
+        throw new Error(authorizeResult.message);
       }
+
+      const { accessToken, login, name, avatarUrl } = authorizeResult;
 
       const latestUserInfo = {
         name,
         githubLogin: login,
-        githubToken: access_token,
-        avatar: avatar_url
+        githubToken: accessToken,
+        avatar: avatarUrl
       };
 
-      const {
-        ops: [user]
-      } = await db
-        .collection('users')
-        .replaceOne({ githubLogin: login }, latestUserInfo, { upsert: true });
+      await userQueries.upsertUserOfGithubLogin(db, {
+        userInfo: latestUserInfo
+      });
 
-      return { user, token: access_token };
+      return { user: latestUserInfo, token: accessToken };
     },
     addFakeUsers: async (_parent, args, { db }) => {
       const users = await randomUsers(args.count);
-      await db.collection('users').insertMany(users);
-
+      await userQueries.addUsers(db, { users });
       return users;
     },
     fakeUserAuth: async (_parent, { githubLogin }, { db }) => {
-      const user = await db.collection('users').findOne({ githubLogin });
+      const user = await userQueries.userOfGithubLogin(db, { githubLogin });
 
       if (!user) {
         throw new Error(`Cannot find user with githubLogin ${githubLogin}`);
@@ -88,7 +85,7 @@ export const resolvers = {
     id: (photo) => photo.id || photo._id,
     url: (photo) => `http://yoursite.com/img/${photo.id || photo._id}.jpg`,
     postedBy: (photo, _args, { db }) =>
-      db.collection('users').findOne({ githubLogin: photo.userId }),
+      userQueries.userOfGithubLogin(db, { githubLogin: photo.userId }),
     taggedUsers: (photo, _args, { db }) =>
       db
         .collection('users')

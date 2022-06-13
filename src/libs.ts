@@ -35,10 +35,32 @@ const requestGithubUserAccount = async (token: string) => {
   }
 };
 
+type GitHubUserInfo =
+  | { status: 'error'; message: string } // error
+  | {
+      status: 'success';
+      accessToken: string;
+      login: string;
+      name: string;
+      avatarUrl: string;
+    }; // success
+
 export const authorizeWithGithub = async (credentials: Credentials) => {
-  const { access_token } = await requestGithubToken(credentials);
-  const githubUser = await requestGithubUserAccount(access_token);
-  return { ...githubUser, access_token };
+  const { access_token } = (await requestGithubToken(credentials)) as {
+    access_token: string;
+  };
+  const result = await requestGithubUserAccount(access_token);
+  const githubUser =
+    'message' in result
+      ? { ...result, status: 'error' }
+      : {
+          ...result,
+          status: 'success',
+          accessToken: access_token,
+          avatarUrl: result.avatar_url
+        };
+
+  return githubUser as GitHubUserInfo;
 };
 
 type RandomUser = {
