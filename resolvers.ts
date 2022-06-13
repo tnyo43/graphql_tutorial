@@ -1,7 +1,7 @@
-const { GraphQLScalarType } = require('graphql');
-const { authorizeWithGithub, randomUsers } = require('./libs.js');
+import { GraphQLScalarType } from 'graphql';
+import { authorizeWithGithub, randomUsers } from './libs';
 
-const resolvers = {
+export const resolvers = {
   Query: {
     me: (_parent, _args, { currentUser }) => currentUser,
     totalPhotos: (_parent, _args, { db }) =>
@@ -129,10 +129,8 @@ const resolvers = {
   DateTime: new GraphQLScalarType({
     name: `DateTime`,
     description: `A calid date time value`,
-    parseValue: (value) => new Date(value),
-    serialize: (value) => new Date(value).toISOString(),
-    parseLiteral: (ast) => ast.value
+    parseValue: (value) => new Date(value as string),
+    serialize: (value) => new Date(value as string).toISOString(),
+    parseLiteral: (ast) => ('value' in ast ? ast.value : new Date()) // FIXME: 型をつけるために一旦 new Date() にしている
   })
 };
-
-module.exports = resolvers;

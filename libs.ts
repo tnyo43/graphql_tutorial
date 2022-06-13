@@ -1,6 +1,12 @@
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
-const requestGithubToken = async (credentials) => {
+type Credentials = {
+  client_id: string;
+  client_secret: string;
+  code: string;
+};
+
+const requestGithubToken = async (credentials: Credentials) => {
   try {
     const result = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
@@ -12,11 +18,11 @@ const requestGithubToken = async (credentials) => {
     });
     return await result.json();
   } catch (error) {
-    throw new Error(error);
+    throw error;
   }
 };
 
-const requestGithubUserAccount = async (token) => {
+const requestGithubUserAccount = async (token: string) => {
   try {
     const result = await fetch(`https://api.github.com/user`, {
       headers: {
@@ -25,21 +31,34 @@ const requestGithubUserAccount = async (token) => {
     });
     return await result.json();
   } catch (error) {
-    throw new Error(error);
+    throw error;
   }
 };
 
-const authorizeWithGithub = async (credentials) => {
+export const authorizeWithGithub = async (credentials: Credentials) => {
   const { access_token } = await requestGithubToken(credentials);
   const githubUser = await requestGithubUserAccount(access_token);
   return { ...githubUser, access_token };
 };
 
-const randomUsers = async (count) => {
+type RandomUser = {
+  login: {
+    username: string;
+    sha1: string;
+  };
+  name: {
+    first: string;
+    last: string;
+  };
+  picture: {
+    thumbnail: string;
+  };
+};
+
+export const randomUsers = async (count: number) => {
   const ramdomUserApi = `https://randomuser.me/api/?results=${count}`;
   const fetcher = await fetch(ramdomUserApi);
-  const { results } = await fetcher.json();
-  console.log(results);
+  const { results } = (await fetcher.json()) as { results: Array<RandomUser> };
   const users = results.map((r) => ({
     githubLogin: r.login.username,
     name: `${r.name.first} ${r.name.last}`,
@@ -49,5 +68,3 @@ const randomUsers = async (count) => {
 
   return users;
 };
-
-module.exports = { authorizeWithGithub, randomUsers };
