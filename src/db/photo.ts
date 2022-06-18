@@ -14,7 +14,7 @@ export type PhotoRecord = WithId<PhotoInfo>;
 
 export type PhotoModel = PhotoInfo & { id: string };
 
-const convertPhotoRecordToModel = (record: PhotoRecord): PhotoModel => {
+export const convertPhotoRecordToModel = (record: PhotoRecord): PhotoModel => {
   const { _id, ...photoInfo } = record;
   return { id: _id.toString(), ...photoInfo };
 };

@@ -11,7 +11,7 @@ export type UserRecord = WithId<UserInfo>;
 
 export type UserModel = UserInfo & { id: string };
 
-const convertUserRecordToModel = (record: UserRecord) => {
+export const convertUserRecordToModel = (record: UserRecord) => {
   const { _id, ...userInfo } = record;
   return { id: _id.toString(), ...userInfo };
 };
