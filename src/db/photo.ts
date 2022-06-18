@@ -12,20 +12,45 @@ type PhotoInfo = {
 
 export type PhotoRecord = WithId<PhotoInfo>;
 
+export type PhotoModel = PhotoInfo & { id: string };
+
+const convertPhotoRecordToModel = (record: PhotoRecord): PhotoModel => {
+  const { _id, ...photoInfo } = record;
+  return { id: _id.toString(), ...photoInfo };
+};
+
 export const photoQueries = {
   // CREATE
-  addPhoto: (db: Db, params: { photoInfo: PhotoInfo }) =>
-    db.collection('photos').insertOne(params.photoInfo) as Promise<
-      InsertOneResult<PhotoRecord>
-    >,
+  addPhoto: async (
+    db: Db,
+    params: { photoInfo: PhotoInfo }
+  ): Promise<PhotoModel> => {
+    const result = (await db
+      .collection('photos')
+      .insertOne(params.photoInfo)) as InsertOneResult<PhotoRecord>;
+
+    return { id: result.insertedId.toString(), ...params.photoInfo };
+  },
 
   // READ
   totalPhotos: (db: Db) => db.collection('photos').estimatedDocumentCount(),
-  allPhotos: (db: Db) =>
-    db.collection('photos').find().toArray() as Promise<PhotoRecord[]>,
-  photosByUser: (db: Db, params: { userInfo: { githubLogin: string } }) =>
-    db
+  allPhotos: async (db: Db) => {
+    const results = (await db
+      .collection('photos')
+      .find()
+      .toArray()) as PhotoRecord[];
+
+    return results.map(convertPhotoRecordToModel);
+  },
+  photosByUser: async (
+    db: Db,
+    params: { userInfo: { githubLogin: string } }
+  ) => {
+    const results = (await db
       .collection('photos')
       .find({ userId: params.userInfo.githubLogin })
-      .toArray()
+      .toArray()) as WithId<PhotoRecord>[];
+
+    return results.map(convertPhotoRecordToModel);
+  }
 };

@@ -61,26 +61,25 @@ export const resolvers = {
         throw new Error('only an authorized user can post a photo');
       }
 
-      const newPhoto = {
+      const photoInfo = {
         ...args.input,
         userId: currentUser.githubLogin,
         created: new Date()
       };
 
-      const { insertedId } = await photoQueries.addPhoto(db, {
-        photoInfo: newPhoto
+      const postedPhoto = await photoQueries.addPhoto(db, {
+        photoInfo: photoInfo
       });
-      newPhoto.id = insertedId;
 
       if (args.input.taggedUsers) {
         const tags = args.input.taggedUsers.map((userId) => ({
-          photoId: newPhoto.id,
+          photoId: postedPhoto.id,
           userId
         }));
         await tagQueries.addTags(db, { tagInfos: tags });
       }
 
-      return newPhoto;
+      return postedPhoto;
     }
   },
   Photo: {
