@@ -41,8 +41,7 @@ export const resolvers = {
     },
     addFakeUsers: async (_parent, args, { db }) => {
       const users = await randomUsers(args.count);
-      await userQueries.addUsers(db, { users });
-      return users;
+      return await userQueries.addUsers(db, { users });
     },
     fakeUserAuth: async (_parent, { githubLogin }, { db }) => {
       const user = await userQueries.userOfGithubLogin(db, { githubLogin });
