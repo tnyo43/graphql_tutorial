@@ -1,6 +1,6 @@
-import { photoQueries } from '../db/photo';
-import { tagQueries } from '../db/tags';
-import { userQueries } from '../db/user';
+import { photoQueries } from '@db/photo';
+import { tagQueries } from '@db/tags';
+import { userQueries } from '@db/user';
 import { authorizeWithGithub, randomUsers } from '../libs';
 import { dateTimeResolver } from './dateTime';
 
