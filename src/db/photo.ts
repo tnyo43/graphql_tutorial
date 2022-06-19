@@ -4,9 +4,8 @@ type PhotoCategory = 'SELFIE' | 'PORTRAIT' | 'ACTION' | 'LANDSCAPE' | 'GRAPHIC';
 
 type PhotoInfo = {
   userId: string;
-  url: string;
   name: string;
-  description: string | null;
+  description?: string;
   category: PhotoCategory;
 };
 
