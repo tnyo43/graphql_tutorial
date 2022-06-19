@@ -9,11 +9,11 @@ type UserInfo = {
 
 export type UserRecord = WithId<UserInfo>;
 
-export type UserModel = UserInfo & { id: string };
+export type UserModel = UserInfo;
 
 export const convertUserRecordToModel = (record: UserRecord) => {
   const { _id, ...userInfo } = record;
-  return { id: _id.toString(), ...userInfo };
+  return userInfo;
 };
 
 export const userQueries = {
@@ -22,11 +22,8 @@ export const userQueries = {
     db: Db,
     params: { users: UserInfo[] }
   ): Promise<UserModel[]> => {
-    const result = await db.collection('users').insertMany(params.users);
-    return params.users.map((user, index) => ({
-      ...user,
-      id: result.insertedIds[index].toString()
-    }));
+    await db.collection('users').insertMany(params.users);
+    return params.users;
   },
 
   // READ
