@@ -1,7 +1,17 @@
-import { useAllUsersQuery, UserListItemFragment } from './query.generated';
+import {
+  useAddFakeUsersMutation,
+  useAllUsersQuery,
+  UserListItemFragment
+} from './query.generated';
 
 export const UserList = () => {
   const { loading, error, data, refetch } = useAllUsersQuery();
+  const [addFakeUsersMutation] = useAddFakeUsersMutation();
+
+  const addFakeUser = async () => {
+    await addFakeUsersMutation({ variables: { count: 1 } });
+    refetch();
+  };
 
   return error ? (
     <p>something wrong. try again!</p>
@@ -11,7 +21,7 @@ export const UserList = () => {
     <Users
       count={data.totalUsers}
       users={data.allUsers}
-      refetchUsers={refetch}
+      addFakeUser={addFakeUser}
     />
   );
 };
@@ -19,11 +29,11 @@ export const UserList = () => {
 const Users: React.FC<{
   count: number;
   users: readonly UserListItemFragment[];
-  refetchUsers: () => void;
+  addFakeUser: () => void;
 }> = (props) => (
   <div>
     <p>{props.count} Users</p>
-    <button onClick={() => props.refetchUsers()}>refetch users</button>
+    <button onClick={() => props.addFakeUser()}>add a fake user</button>
     <ul>
       {props.users.map((user) => (
         <li key={user.githubLogin}>

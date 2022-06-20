@@ -10,3 +10,9 @@ query allUsers {
     ...UserListItem
   }
 }
+
+mutation addFakeUsers($count: Int!) {
+  addFakeUsers(count: $count) {
+    ...UserListItem
+  }
+}
