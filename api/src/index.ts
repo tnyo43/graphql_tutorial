@@ -7,7 +7,7 @@ import { resolvers } from './resolvers';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const typeDefs = readFileSync('./typeDefs.graphql', 'utf-8');
+const typeDefs = readFileSync('./schema.graphql', 'utf-8');
 
 const main = async () => {
   const app = express();
