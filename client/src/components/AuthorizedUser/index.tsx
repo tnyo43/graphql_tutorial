@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGithubAuthMutation, useMeQuery } from './query.generated';
+import {
+  MeDocument,
+  useGithubAuthMutation,
+  useMeQuery
+} from './query.generated';
 
 export const AuthorizedUser = () => {
   const [isLogin, setLogin] = useState(false);
@@ -44,9 +48,7 @@ const LoginButton = (props: { requestCode: () => void }) => (
 );
 
 const Me = () => {
-  const { loading, error, data } = useMeQuery();
-
-  console.log(loading, error, data);
+  const { loading, error, data, client } = useMeQuery();
 
   return error ? (
     <p>something wrong. try again!</p>
@@ -59,7 +61,10 @@ const Me = () => {
       <button
         onClick={() => {
           localStorage.removeItem('token');
-          window.location.reload();
+          client.writeQuery({
+            query: MeDocument,
+            data: { me: null }
+          });
         }}
       >
         logout
