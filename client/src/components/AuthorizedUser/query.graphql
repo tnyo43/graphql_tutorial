@@ -1,0 +1,11 @@
+mutation githubAuth($code: String!) {
+  githubAuth(code: $code) {
+    token
+  }
+}
+
+query me {
+  me {
+    ...userInfo
+  }
+}

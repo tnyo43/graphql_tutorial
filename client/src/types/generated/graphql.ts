@@ -1,5 +1,5 @@
-export type Maybe<T> = T;
-export type InputMaybe<T> = T;
+export type Maybe<T> = T | null;
+export type InputMaybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
@@ -14,17 +14,17 @@ export type Scalars = {
 };
 
 export type AuthPayload = {
-  __typename: 'AuthPayload';
-  token: Scalars['String'];
-  user: User;
+  readonly __typename: 'AuthPayload';
+  readonly token: Scalars['String'];
+  readonly user: User;
 };
 
 export type Mutation = {
-  __typename: 'Mutation';
-  addFakeUsers: Array<User>;
-  fakeUserAuth: AuthPayload;
-  githubAuth: AuthPayload;
-  postPhoto: Photo;
+  readonly __typename: 'Mutation';
+  readonly addFakeUsers: ReadonlyArray<User>;
+  readonly fakeUserAuth: AuthPayload;
+  readonly githubAuth: AuthPayload;
+  readonly postPhoto: Photo;
 };
 
 
@@ -48,15 +48,15 @@ export type MutationPostPhotoArgs = {
 };
 
 export type Photo = {
-  __typename: 'Photo';
-  category: PhotoCategory;
-  created: Scalars['DateTime'];
-  description: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  postedBy: User;
-  taggedUsers: Array<User>;
-  url: Scalars['String'];
+  readonly __typename: 'Photo';
+  readonly category: PhotoCategory;
+  readonly created: Scalars['DateTime'];
+  readonly description: Maybe<Scalars['String']>;
+  readonly id: Scalars['ID'];
+  readonly name: Scalars['String'];
+  readonly postedBy: User;
+  readonly taggedUsers: ReadonlyArray<User>;
+  readonly url: Scalars['String'];
 };
 
 export enum PhotoCategory {
@@ -68,19 +68,19 @@ export enum PhotoCategory {
 }
 
 export type PostPhotoInput = {
-  category: InputMaybe<PhotoCategory>;
-  description: InputMaybe<Scalars['String']>;
-  name: Scalars['String'];
-  taggedUsers: InputMaybe<Array<Scalars['ID']>>;
+  readonly category: InputMaybe<PhotoCategory>;
+  readonly description: InputMaybe<Scalars['String']>;
+  readonly name: Scalars['String'];
+  readonly taggedUsers: InputMaybe<ReadonlyArray<Scalars['ID']>>;
 };
 
 export type Query = {
-  __typename: 'Query';
-  allPhotos: Array<Photo>;
-  allUsers: Array<User>;
-  me: Maybe<User>;
-  totalPhotos: Scalars['Int'];
-  totalUsers: Scalars['Int'];
+  readonly __typename: 'Query';
+  readonly allPhotos: ReadonlyArray<Photo>;
+  readonly allUsers: ReadonlyArray<User>;
+  readonly me: Maybe<User>;
+  readonly totalPhotos: Scalars['Int'];
+  readonly totalUsers: Scalars['Int'];
 };
 
 
@@ -89,10 +89,10 @@ export type QueryAllPhotosArgs = {
 };
 
 export type User = {
-  __typename: 'User';
-  avatar: Maybe<Scalars['String']>;
-  githubLogin: Scalars['ID'];
-  inPhotos: Array<Photo>;
-  name: Scalars['String'];
-  postedPhotos: Array<Photo>;
+  readonly __typename: 'User';
+  readonly avatar: Maybe<Scalars['String']>;
+  readonly githubLogin: Scalars['ID'];
+  readonly inPhotos: ReadonlyArray<Photo>;
+  readonly name: Scalars['String'];
+  readonly postedPhotos: ReadonlyArray<Photo>;
 };

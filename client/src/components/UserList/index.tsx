@@ -1,8 +1,5 @@
-import {
-  useAddFakeUsersMutation,
-  useAllUsersQuery,
-  UserListItemFragment
-} from './query.generated';
+import { UserInfoFragment } from '../UserCommon/fragment.generated';
+import { useAddFakeUsersMutation, useAllUsersQuery } from './query.generated';
 
 export const UserList = () => {
   const { loading, error, data, refetch } = useAllUsersQuery();
@@ -28,7 +25,7 @@ export const UserList = () => {
 
 const Users: React.FC<{
   count: number;
-  users: readonly UserListItemFragment[];
+  users: readonly UserInfoFragment[];
   addFakeUser: () => void;
 }> = (props) => (
   <div>
@@ -37,7 +34,7 @@ const Users: React.FC<{
     <ul>
       {props.users.map((user) => (
         <li key={user.githubLogin}>
-          <img src={user.avatar} width={48} height={48} alt='' />
+          <img src={user.avatar || ''} width={48} height={48} alt='' />
           {user.name}
         </li>
       ))}

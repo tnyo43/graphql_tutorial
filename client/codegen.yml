@@ -7,9 +7,10 @@ generates:
     plugins:
       - 'typescript'
     config:
+      immutableTypes: true
       nonOptionalTypename: true
       avoidOptionals: true
-      maybeValue: T
+      maybeValue: T | null
   src/:
     preset: near-operation-file
     presetConfig:
@@ -22,4 +23,4 @@ generates:
       immutableTypes: true
       nonOptionalTypename: true
       avoidOptionals: true
-      maybeValue: T
+      maybeValue: T | null

@@ -1,18 +1,12 @@
-fragment UserListItem on User {
-  githubLogin
-  name
-  avatar
-}
-
 query allUsers {
   totalUsers
   allUsers {
-    ...UserListItem
+    ...userInfo
   }
 }
 
 mutation addFakeUsers($count: Int!) {
   addFakeUsers(count: $count) {
-    ...UserListItem
+    ...userInfo
   }
 }
