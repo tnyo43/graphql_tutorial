@@ -12,6 +12,7 @@ export type UserRecord = WithId<UserInfo>;
 export type UserModel = UserInfo;
 
 export const convertUserRecordToModel = (record: UserRecord) => {
+  if (record === null) return null;
   const { _id, ...userInfo } = record;
   return userInfo;
 };

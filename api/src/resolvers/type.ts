@@ -3,5 +3,5 @@ import { Db } from 'mongodb';
 
 export type Context = {
   db: Db;
-  currentUser: UserModel;
+  currentUser: UserModel | null;
 };
