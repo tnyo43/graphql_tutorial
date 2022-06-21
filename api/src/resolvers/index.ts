@@ -3,7 +3,8 @@ import { dateTimeResolver } from './dateTime';
 import {
   photoMutationResolvers,
   photoQueryResolvers,
-  photoResolvers
+  photoResolvers,
+  photoSubscriptionResolvers
 } from './photo';
 import { Context } from './type';
 import {
@@ -22,6 +23,9 @@ export const resolvers: Resolvers<Context> = {
   Mutation: {
     ...userMutationResolvers,
     ...photoMutationResolvers
+  },
+  Subscription: {
+    ...photoSubscriptionResolvers
   },
   Photo: photoResolvers,
   User: userResolver,

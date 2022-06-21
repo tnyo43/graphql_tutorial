@@ -1,10 +1,12 @@
 import { photoQueries } from '@db/photo';
 import { tagQueries } from '@db/tags';
 import { userQueries } from '@db/user';
+import { PubSub } from 'graphql-subscriptions';
 import {
   MutationResolvers,
   PhotoResolvers,
-  QueryResolvers
+  QueryResolvers,
+  SubscriptionResolvers
 } from 'types/generated/graphql';
 import { Context } from './type';
 
@@ -20,7 +22,7 @@ export const photoMutationResolvers: Pick<
   MutationResolvers<Context>,
   'postPhoto'
 > = {
-  postPhoto: async (_parent, args, { db, currentUser }) => {
+  postPhoto: async (_parent, args, { db, currentUser, pubsub }) => {
     if (!currentUser) {
       throw new Error('only an authorized user can post a photo');
     }
@@ -44,7 +46,20 @@ export const photoMutationResolvers: Pick<
       await tagQueries.addTags(db, { tagInfos: tags });
     }
 
+    pubsub.publish('photo-add', { newPhoto: postedPhoto });
+
     return postedPhoto;
+  }
+};
+
+export const photoSubscriptionResolvers: Pick<
+  SubscriptionResolvers<Context>,
+  'newPhoto'
+> = {
+  newPhoto: {
+    subscribe: (_parent, _args, { pubsub }) => ({
+      [Symbol.asyncIterator]: () => pubsub.asyncIterator('photo-add')
+    })
   }
 };
 
