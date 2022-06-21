@@ -5,6 +5,8 @@ import { readFileSync } from 'fs';
 import { MongoClient, ServerApiVersion } from 'mongodb';
 import { resolvers } from './resolvers';
 import dotenv from 'dotenv';
+import { Context } from 'resolvers';
+import { userQueries } from '@db/user';
 dotenv.config();
 
 const typeDefs = readFileSync('./schema.graphql', 'utf-8');
@@ -24,8 +26,11 @@ const main = async () => {
     resolvers,
     context: async ({ req }) => {
       const githubToken = req.headers.authorization;
-      const currentUser = await db.collection('users').findOne({ githubToken });
-      return { db, currentUser };
+      const currentUser = await userQueries.userOfGithubToken(db, {
+        githubToken
+      });
+      const context: Context = { db, currentUser };
+      return context;
     }
   });
 

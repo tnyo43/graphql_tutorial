@@ -44,6 +44,14 @@ export const userQueries = {
 
     return convertUserRecordToModel(result);
   },
+  userOfGithubToken: async (
+    db: Db,
+    params: { githubToken: string }
+  ): Promise<UserModel> => {
+    const result = (await db.collection('users').findOne(params)) as UserRecord;
+
+    return convertUserRecordToModel(result);
+  },
 
   // UPSERT
   upsertUserOfGithubLogin: async (db: Db, params: { userInfo: UserInfo }) => {

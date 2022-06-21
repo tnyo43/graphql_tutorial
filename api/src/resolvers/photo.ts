@@ -6,16 +6,20 @@ import {
   PhotoResolvers,
   QueryResolvers
 } from 'types/generated/graphql';
+import { Context } from './type';
 
 export const photoQueryResolvers: Pick<
-  QueryResolvers,
+  QueryResolvers<Context>,
   'allPhotos' | 'totalPhotos'
 > = {
   totalPhotos: (_parent, _args, { db }) => photoQueries.totalPhotos(db),
   allPhotos: (_parent, _args, { db }) => photoQueries.allPhotos(db)
 };
 
-export const photoMutationResolvers: Pick<MutationResolvers, 'postPhoto'> = {
+export const photoMutationResolvers: Pick<
+  MutationResolvers<Context>,
+  'postPhoto'
+> = {
   postPhoto: async (_parent, args, { db, currentUser }) => {
     if (!currentUser) {
       throw new Error('only an authorized user can post a photo');
@@ -44,7 +48,7 @@ export const photoMutationResolvers: Pick<MutationResolvers, 'postPhoto'> = {
   }
 };
 
-export const photoResolvers: PhotoResolvers = {
+export const photoResolvers: PhotoResolvers<Context> = {
   url: (photo) => `http://yoursite.com/img/${photo.id}.jpg`,
   postedBy: (photo, _args, { db }) =>
     userQueries.userOfGithubLogin(db, { githubLogin: photo.userId }),

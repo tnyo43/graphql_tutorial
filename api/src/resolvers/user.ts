@@ -7,9 +7,10 @@ import {
   QueryResolvers,
   UserResolvers
 } from 'types/generated/graphql';
+import { Context } from './type';
 
 export const userQueryResolvers: Pick<
-  QueryResolvers,
+  QueryResolvers<Context>,
   'me' | 'allUsers' | 'totalUsers'
 > = {
   me: (_parent, _args, { currentUser }) => currentUser,
@@ -18,7 +19,7 @@ export const userQueryResolvers: Pick<
 };
 
 export const userMutationResolvers: Pick<
-  MutationResolvers,
+  MutationResolvers<Context>,
   'githubAuth' | 'addFakeUsers' | 'fakeUserAuth'
 > = {
   githubAuth: async (_parent, { code }, { db }) => {
@@ -65,7 +66,7 @@ export const userMutationResolvers: Pick<
   }
 };
 
-export const userResolver: UserResolvers = {
+export const userResolver: UserResolvers<Context> = {
   postedPhotos: (user, _args, { db }) =>
     photoQueries.photosByUser(db, { userInfo: user }),
   inPhotos: (user, _args, { db }) =>
