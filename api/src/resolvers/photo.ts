@@ -1,7 +1,6 @@
 import { photoQueries } from '@db/photo';
 import { tagQueries } from '@db/tags';
 import { userQueries } from '@db/user';
-import { PubSub } from 'graphql-subscriptions';
 import {
   MutationResolvers,
   PhotoResolvers,
