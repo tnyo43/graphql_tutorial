@@ -10,3 +10,9 @@ mutation addFakeUsers($count: Int!) {
     ...userInfo
   }
 }
+
+subscription addFakeUsersSubscription {
+  newUsers {
+    ...userInfo
+  }
+}

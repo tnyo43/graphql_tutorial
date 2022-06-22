@@ -1,13 +1,27 @@
+import { useEffect, useState } from 'react';
 import { UserInfoFragment } from '../UserCommon/fragment.generated';
-import { useAddFakeUsersMutation, useAllUsersQuery } from './query.generated';
+import {
+  useAddFakeUsersMutation,
+  useAllUsersQuery,
+  useAddFakeUsersSubscriptionSubscription
+} from './query.generated';
 
 export const UserList = () => {
-  const { loading, error, data, refetch } = useAllUsersQuery();
+  const { loading, error, data } = useAllUsersQuery();
   const [addFakeUsersMutation] = useAddFakeUsersMutation();
+  const subscriptionHandler = useAddFakeUsersSubscriptionSubscription();
+  const [subscribedUsers, setSubscribedUsers] = useState<UserInfoFragment[]>(
+    []
+  );
+
+  useEffect(() => {
+    if (subscriptionHandler.data === undefined) return;
+    const newUsers = subscriptionHandler.data.newUsers;
+    setSubscribedUsers((users) => users.concat(newUsers));
+  }, [subscriptionHandler]);
 
   const addFakeUser = async () => {
     await addFakeUsersMutation({ variables: { count: 1 } });
-    refetch();
   };
 
   return error ? (
@@ -16,8 +30,8 @@ export const UserList = () => {
     <p>loading users...</p>
   ) : (
     <Users
-      count={data.totalUsers}
-      users={data.allUsers}
+      count={data.totalUsers + subscribedUsers.length}
+      users={data.allUsers.concat(subscribedUsers)}
       addFakeUser={addFakeUser}
     />
   );
