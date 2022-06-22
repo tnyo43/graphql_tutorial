@@ -10,7 +10,8 @@ import { Context } from './type';
 import {
   userMutationResolvers,
   userQueryResolvers,
-  userResolver
+  userResolver,
+  userSubscriptionResolvers
 } from './user';
 
 export type { Context } from './type';
@@ -25,6 +26,7 @@ export const resolvers: Resolvers<Context> = {
     ...photoMutationResolvers
   },
   Subscription: {
+    ...userSubscriptionResolvers,
     ...photoSubscriptionResolvers
   },
   Photo: photoResolvers,

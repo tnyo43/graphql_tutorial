@@ -5,6 +5,7 @@ import { authorizeWithGithub, randomUsers } from 'libs';
 import {
   MutationResolvers,
   QueryResolvers,
+  SubscriptionResolvers,
   UserResolvers
 } from 'types/generated/graphql';
 import { Context } from './type';
@@ -48,9 +49,13 @@ export const userMutationResolvers: Pick<
 
     return { user: latestUserInfo, token: accessToken };
   },
-  addFakeUsers: async (_parent, args, { db }) => {
+  addFakeUsers: async (_parent, args, { db, pubsub }) => {
     const users = await randomUsers(args.count);
-    return await userQueries.addUsers(db, { users });
+    const newUsers = await userQueries.addUsers(db, { users });
+
+    pubsub.publish('users-add', { newUsers });
+
+    return newUsers;
   },
   fakeUserAuth: async (_parent, { githubLogin }, { db }) => {
     const user = await userQueries.userOfGithubLogin(db, { githubLogin });
@@ -63,6 +68,17 @@ export const userMutationResolvers: Pick<
       token: user.githubToken,
       user
     };
+  }
+};
+
+export const userSubscriptionResolvers: Pick<
+  SubscriptionResolvers,
+  'newUsers'
+> = {
+  newUsers: {
+    subscribe: (_parent, _args, { pubsub }) => ({
+      [Symbol.asyncIterator]: () => pubsub.asyncIterator('users-add')
+    })
   }
 };
 
