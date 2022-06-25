@@ -62,7 +62,6 @@ const main = async () => {
       const currentUser = await userQueries.userOfGithubToken(db, {
         githubToken
       });
-      console.log(pubsub);
       const context: Context = {
         db,
         currentUser,
