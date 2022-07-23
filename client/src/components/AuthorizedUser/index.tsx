@@ -1,5 +1,5 @@
+import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   MeDocument,
   useGithubAuthMutation,
@@ -8,13 +8,13 @@ import {
 
 export const AuthorizedUser = () => {
   const [isLogin, setLogin] = useState(false);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [{ data }, githubAuthMutation] = useGithubAuthMutation();
 
   const requestCode = () => {
-    const url = `http://github.com/login/oauth/authorize?client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}`;
-    window.location.href = url;
+    const url = `http://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}`;
+    router.push(url);
   };
 
   useEffect(() => {
@@ -25,20 +25,21 @@ export const AuthorizedUser = () => {
   }, [data]);
 
   useEffect(() => {
+    if (!localStorage) return;
     if (localStorage.getItem('token') !== null) {
       setLogin(true);
     }
   }, []);
 
   useEffect(() => {
-    if (window.location.search.match(/code=/)) {
+    if (router.asPath.match(/code=/)) {
       setLogin(true);
       const code = window.location.search.replace('?code=', '');
       githubAuthMutation({ code });
-      navigate('/', { replace: true });
+      router.replace('/');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [window.location.toString()]);
+  }, [router.asPath]);
 
   return isLogin ? <Me /> : <LoginButton requestCode={requestCode} />;
 };
@@ -48,6 +49,7 @@ const LoginButton = (props: { requestCode: () => void }) => (
 );
 
 const Me = () => {
+  const router = useRouter();
   const [{ fetching, error, data }, writeQuery] = useMeQuery();
 
   return error ? (
@@ -60,11 +62,14 @@ const Me = () => {
       <span>{data.me.name}</span>
       <button
         onClick={() => {
-          localStorage.removeItem('token');
+          if (localStorage) {
+            localStorage.removeItem('token');
+          }
           writeQuery({
             query: MeDocument,
             data: { me: null }
           });
+          router.reload();
         }}
       >
         logout

@@ -20,7 +20,7 @@ $ yarn
 
 You need to create `.env` file and fill some variables to work in your environment.
 
-- REACT_APP_GITHUB_CLIENT_ID ... The `Client ID` of your OAuth App
+- NEXT_PUBLIC_GITHUB_CLIENT_ID ... The `Client ID` of your OAuth App
 
 # Run
 
