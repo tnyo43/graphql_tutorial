@@ -32,14 +32,13 @@ export const AuthorizedUser = () => {
   }, []);
 
   useEffect(() => {
-    if (router.asPath.match(/code=/)) {
+    const code = router.query.code;
+    if (typeof code === 'string') {
       setLogin(true);
-      const code = window.location.search.replace('?code=', '');
       githubAuthMutation({ code });
       router.replace('/');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.asPath]);
+  }, [router.query]);
 
   return isLogin ? <Me /> : <LoginButton requestCode={requestCode} />;
 };
