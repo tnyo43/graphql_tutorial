@@ -7,26 +7,26 @@ import {
 } from './query.generated';
 
 export const UserList = () => {
-  const { loading, error, data } = useAllUsersQuery();
-  const [addFakeUsersMutation] = useAddFakeUsersMutation();
-  const subscriptionHandler = useAddFakeUsersSubscriptionSubscription();
+  const [{ fetching, error, data }] = useAllUsersQuery();
+  const [, addFakeUsersMutation] = useAddFakeUsersMutation();
+  const [{ data: addUserData }] = useAddFakeUsersSubscriptionSubscription();
   const [subscribedUsers, setSubscribedUsers] = useState<UserInfoFragment[]>(
     []
   );
 
   useEffect(() => {
-    if (subscriptionHandler.data === undefined) return;
-    const newUsers = subscriptionHandler.data.newUsers;
+    if (addUserData === undefined) return;
+    const newUsers = addUserData.newUsers;
     setSubscribedUsers((users) => users.concat(newUsers));
-  }, [subscriptionHandler]);
+  }, [addUserData]);
 
   const addFakeUser = async () => {
-    await addFakeUsersMutation({ variables: { count: 1 } });
+    await addFakeUsersMutation({ count: 1 });
   };
 
   return error ? (
     <p>something wrong. try again!</p>
-  ) : loading || data === undefined ? (
+  ) : fetching || data === undefined ? (
     <p>loading users...</p>
   ) : (
     <Users

@@ -10,7 +10,7 @@ export const AuthorizedUser = () => {
   const [isLogin, setLogin] = useState(false);
   const navigate = useNavigate();
 
-  const [githubAuthMutation, { data }] = useGithubAuthMutation();
+  const [{ data }, githubAuthMutation] = useGithubAuthMutation();
 
   const requestCode = () => {
     const url = `http://github.com/login/oauth/authorize?client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}`;
@@ -34,7 +34,7 @@ export const AuthorizedUser = () => {
     if (window.location.search.match(/code=/)) {
       setLogin(true);
       const code = window.location.search.replace('?code=', '');
-      githubAuthMutation({ variables: { code } });
+      githubAuthMutation({ code });
       navigate('/', { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -48,11 +48,11 @@ const LoginButton = (props: { requestCode: () => void }) => (
 );
 
 const Me = () => {
-  const { loading, error, data, client } = useMeQuery();
+  const [{ fetching, error, data }, writeQuery] = useMeQuery();
 
   return error ? (
     <p>something wrong. try again!</p>
-  ) : loading || data === undefined || data.me === null ? (
+  ) : fetching || data === undefined || data.me === null ? (
     <p>loading...</p>
   ) : (
     <div>
@@ -61,7 +61,7 @@ const Me = () => {
       <button
         onClick={() => {
           localStorage.removeItem('token');
-          client.writeQuery({
+          writeQuery({
             query: MeDocument,
             data: { me: null }
           });

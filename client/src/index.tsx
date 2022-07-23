@@ -1,18 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import reportWebVitals from './reportWebVitals';
-import { ApolloProvider } from '@apollo/client';
-import { client } from './apis/client';
+import { urqlClient } from './apis/client';
 import { UserPage } from './components/UserPage';
+import { Provider } from 'urql';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <ApolloProvider client={client}>
+    <Provider value={urqlClient}>
       <UserPage />
-    </ApolloProvider>
+    </Provider>
   </React.StrictMode>
 );
 

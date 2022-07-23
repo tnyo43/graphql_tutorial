@@ -18,9 +18,10 @@ generates:
       baseTypesPath: ../src/types/generated/graphql.ts
     plugins:
       - 'typescript-operations'
-      - 'typescript-react-apollo'
+      - 'typescript-urql'
     config:
       immutableTypes: true
       nonOptionalTypename: true
       avoidOptionals: true
       maybeValue: T | null
+      documents: 'src/graphql/**/*.graphql'
