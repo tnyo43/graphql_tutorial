@@ -4,17 +4,17 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "prepare:graphql": "cpx ../schema.graphql . && graphql-codegen --config codegen.yml",
     "prepare": "run-s prepare:*"
   },
   "dependencies": {
     "graphql": "^16.5.0",
+    "next": "^12.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.3.0",
-    "react-scripts": "5.0.1",
     "typescript": "^4.7.4",
     "urql": "^2.2.3",
     "web-vitals": "^2.1.4"

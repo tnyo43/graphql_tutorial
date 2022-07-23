@@ -27,3 +27,6 @@ yarn-error.log*
 schema.graphql
 *.generated.ts
 src/types/generated
+
+#next
+.next
