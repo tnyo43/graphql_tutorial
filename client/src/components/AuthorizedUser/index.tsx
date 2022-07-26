@@ -38,7 +38,7 @@ export const AuthorizedUser = () => {
       githubAuthMutation({ code });
       router.replace('/');
     }
-  }, [router.query]);
+  }, [router, githubAuthMutation]);
 
   return isLogin ? <Me /> : <LoginButton requestCode={requestCode} />;
 };
@@ -57,7 +57,9 @@ const Me = () => {
     <p>loading...</p>
   ) : (
     <div>
-      <img src={data.me.avatar || ''} width={48} height={48} alt='' />
+      <picture>
+        <img src={data.me.avatar || ''} width={48} height={48} alt='' />
+      </picture>
       <span>{data.me.name}</span>
       <button
         onClick={() => {

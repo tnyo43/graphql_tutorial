@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { UserInfoFragment } from '../UserCommon/fragment.generated';
 import {
   useAddFakeUsersMutation,
@@ -48,7 +48,9 @@ const Users: React.FC<{
     <ul>
       {props.users.map((user) => (
         <li key={user.githubLogin}>
-          <img src={user.avatar || ''} width={48} height={48} alt='' />
+          <picture>
+            <img src={user.avatar || ''} width={48} height={48} alt='' />
+          </picture>
           {user.name}
         </li>
       ))}
