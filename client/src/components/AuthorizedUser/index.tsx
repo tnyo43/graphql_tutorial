@@ -51,11 +51,12 @@ const Me = () => {
   const router = useRouter();
   const [{ fetching, error, data }, writeQuery] = useMeQuery();
 
-  return error ? (
-    <p>something wrong. try again!</p>
-  ) : fetching || data === undefined || data.me === null ? (
-    <p>loading...</p>
-  ) : (
+  if (error) {
+    return <p>something wrong. try again!</p>;
+  }
+  if (fetching || data === undefined || data.me === null) throw 'loading';
+
+  return (
     <div>
       <picture>
         <img src={data.me.avatar || ''} width={48} height={48} alt='' />

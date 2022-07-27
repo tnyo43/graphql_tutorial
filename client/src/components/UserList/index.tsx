@@ -24,11 +24,10 @@ export const UserList = () => {
     await addFakeUsersMutation({ count: 1 });
   };
 
-  return error ? (
-    <p>something wrong. try again!</p>
-  ) : fetching || data === undefined ? (
-    <p>loading users...</p>
-  ) : (
+  if (error) return <p>something wrong. try again!</p>;
+  if (fetching || data === undefined) throw 'fetching';
+
+  return (
     <Users
       count={data.totalUsers + subscribedUsers.length}
       users={data.allUsers.concat(subscribedUsers)}
