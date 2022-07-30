@@ -7,32 +7,24 @@ type Credentials = {
 };
 
 const requestGithubToken = async (credentials: Credentials) => {
-  try {
-    const result = await fetch('https://github.com/login/oauth/access_token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json'
-      },
-      body: JSON.stringify(credentials)
-    });
-    return await result.json();
-  } catch (error) {
-    throw error;
-  }
+  const result = await fetch('https://github.com/login/oauth/access_token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    },
+    body: JSON.stringify(credentials)
+  });
+  return await result.json();
 };
 
 const requestGithubUserAccount = async (token: string) => {
-  try {
-    const result = await fetch(`https://api.github.com/user`, {
-      headers: {
-        Authorization: `token ${token}`
-      }
-    });
-    return await result.json();
-  } catch (error) {
-    throw error;
-  }
+  const result = await fetch(`https://api.github.com/user`, {
+    headers: {
+      Authorization: `token ${token}`
+    }
+  });
+  return await result.json();
 };
 
 type GitHubUserInfo =
@@ -46,17 +38,19 @@ type GitHubUserInfo =
     }; // success
 
 export const authorizeWithGithub = async (credentials: Credentials) => {
-  const { access_token } = (await requestGithubToken(credentials)) as {
+  const { access_token: accessToken } = (await requestGithubToken(
+    credentials
+  )) as {
     access_token: string;
   };
-  const result = await requestGithubUserAccount(access_token);
+  const result = await requestGithubUserAccount(accessToken);
   const githubUser =
     'message' in result
       ? { ...result, status: 'error' }
       : {
           ...result,
           status: 'success',
-          accessToken: access_token,
+          accessToken,
           avatarUrl: result.avatar_url
         };
 

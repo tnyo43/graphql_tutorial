@@ -13,6 +13,7 @@ export type UserModel = UserInfo;
 
 export const convertUserRecordToModel = (record: UserRecord) => {
   if (record === null) return null;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { _id, ...userInfo } = record;
   return userInfo;
 };

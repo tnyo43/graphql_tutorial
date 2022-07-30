@@ -87,6 +87,7 @@ const main = async () => {
   server.applyMiddleware({ app });
 
   httpServer.listen({ port: 4000 }, () =>
+    // eslint-disable-next-line no-console
     console.log(
       `GraphQL Server running @ http://localhost:4000${server.graphqlPath}`
     )

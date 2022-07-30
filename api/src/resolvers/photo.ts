@@ -33,9 +33,7 @@ export const photoMutationResolvers: Pick<
       created: new Date()
     };
 
-    const postedPhoto = await photoQueries.addPhoto(db, {
-      photoInfo: photoInfo
-    });
+    const postedPhoto = await photoQueries.addPhoto(db, { photoInfo });
 
     if (args.input.taggedUsers) {
       const tags = args.input.taggedUsers.map((userId) => ({
